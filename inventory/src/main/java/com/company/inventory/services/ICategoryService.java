@@ -7,5 +7,6 @@ import com.company.inventory.response.CategoryResponseRest;
 public interface ICategoryService {
 
     ResponseEntity<CategoryResponseRest> search();
+    ResponseEntity<CategoryResponseRest> searchById(Long id);
     
 }
