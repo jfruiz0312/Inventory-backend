@@ -90,6 +90,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
 			// Validar si hay categorías
 			if (categorySave != null) {
+				
 				lista.add(categorySave);
 				response.getCategoryResponse().setCategory(lista);
 				response.setMetadata("Éxito", "00", "Categoría guardada correctamente");
@@ -99,7 +100,44 @@ public class CategoryServiceImpl implements ICategoryService {
 			}
 
 		} catch (Exception e) {
-			response.setMetadata("Error", "-1", "Error interno al consultar categorías: " + e.getMessage());
+			response.setMetadata("Error", "-1", "Error interno al guardar categorías: " + e.getMessage());
+			e.printStackTrace();
+			return new ResponseEntity<CategoryResponseRest>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<CategoryResponseRest>(response, HttpStatus.OK);
+
+	}
+
+	@Override
+	@Transactional
+	public ResponseEntity<CategoryResponseRest> update(Category category, Long id) {
+		CategoryResponseRest response = new CategoryResponseRest();
+		List<Category> lista = new ArrayList<>();
+		try {
+			Optional<Category> categorySearch = categoryDao.findById(id);
+
+			// Validar si hay categoría
+			if (categorySearch.isPresent()) {
+				// Se procedera ha actualizar el registro.
+				categorySearch.get().setName(category.getName());
+				categorySearch.get().setDescription(category.getDescription());
+				Category categoryToUpdate = categoryDao.save(categorySearch.get());
+				if (categoryToUpdate != null) {
+					lista.add(categoryToUpdate);
+					response.getCategoryResponse().setCategory(lista);
+					response.setMetadata("Éxito", "00", "Categoría actualizada correctamente");
+				} else {
+					response.setMetadata("Respuesta no OK", "01", "Categoria no actualizada!");
+					return new ResponseEntity<CategoryResponseRest>(response, HttpStatus.BAD_REQUEST);
+
+				}
+			} else {
+				response.setMetadata("Respuesta no OK", "01", "Categoria no encontrada!");
+				return new ResponseEntity<CategoryResponseRest>(response, HttpStatus.NOT_FOUND);
+			}
+
+		} catch (Exception e) {
+			response.setMetadata("Error", "-1", "Error interno al actualizar categoría: " + e.getMessage());
 			e.printStackTrace();
 			return new ResponseEntity<CategoryResponseRest>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
